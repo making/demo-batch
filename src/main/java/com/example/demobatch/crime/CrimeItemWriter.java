@@ -17,7 +17,8 @@ public class CrimeItemWriter implements ItemWriter<Crime> {
 	@Override
 	public void write(List<? extends Crime> items) throws Exception {
 		log.info("<=====");
-		items.forEach(i -> log.info(">> {}", i));
+		items.forEach(i -> log.info(">> {}:{}", i.getItemCount(), i));
 		log.info("=====>");
+		Thread.sleep(20);
 	}
 }

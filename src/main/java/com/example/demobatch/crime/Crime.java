@@ -101,6 +101,6 @@ public class Crime implements ItemCountAware {
 				+ '\'' + ", district=" + district + ", beat='" + beat + '\'' + ", grid="
 				+ grid + ", crimedescr='" + crimedescr + '\'' + ", ucrNcicCode="
 				+ ucrNcicCode + ", latitude=" + latitude + ", longitude=" + longitude
-				+ ", itemCount=" + itemCount + '}';
+				+ '}';
 	}
 }
