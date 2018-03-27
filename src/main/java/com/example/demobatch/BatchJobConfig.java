@@ -18,17 +18,18 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.UrlResource;
 
 @Configuration
 public class BatchJobConfig {
 	private final JobBuilderFactory jobBuilderFactory;
 	private final StepBuilderFactory stepBuilderFactory;
+	private final DemoProperties props;
 
 	public BatchJobConfig(JobBuilderFactory jobBuilderFactory,
-			StepBuilderFactory stepBuilderFactory) {
+			StepBuilderFactory stepBuilderFactory, DemoProperties props) {
 		this.jobBuilderFactory = jobBuilderFactory;
 		this.stepBuilderFactory = stepBuilderFactory;
+		this.props = props;
 	}
 
 	@Bean
@@ -56,8 +57,7 @@ public class BatchJobConfig {
 						"sq__ft", "type", "sale_date", "price", "latitude", "longitude" }) //
 				.linesToSkip(1) //
 				.fieldSetMapper(new RealEstateFieldSetMapper()) //
-				.resource(new UrlResource(
-						"http://samplecsvs.s3.amazonaws.com/Sacramentorealestatetransactions.csv")) //
+				.resource(this.props.getCsvDownloadPath()) //
 				.build();
 	}
 

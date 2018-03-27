@@ -17,18 +17,21 @@ public class BatchController {
 	private final JobLauncher jobLauncher;
 	private final Job job;
 	private final JobParametersConverter jobParametersConverter;
+	private final CsvDownloader csvDownloader;
 
 	public BatchController(JobLauncher jobLauncher, Job job,
-			JobParametersConverter jobParametersConverter) {
+			JobParametersConverter jobParametersConverter, CsvDownloader csvDownloader) {
 		this.jobLauncher = jobLauncher;
 		this.job = job;
 		this.jobParametersConverter = jobParametersConverter;
+		this.csvDownloader = csvDownloader;
 	}
 
 	@PostMapping
 	@Scheduled(cron = "0 0 * * * *")
 	@Scheduled(initialDelay = 0, fixedRate = Long.MAX_VALUE /* Never happen */)
 	public ExitStatus run() throws Exception {
+		this.csvDownloader.download();
 		JobParameters jobParameters = this.jobParametersConverter
 				.getJobParameters(new Properties());
 		JobExecution jobExecution = this.jobLauncher.run(this.job, jobParameters);
