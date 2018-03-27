@@ -40,17 +40,17 @@ public class BatchJobConfig {
 	}
 
 	@Bean
-	public Step step() throws Exception {
+	public Step step() {
 		return stepBuilderFactory.get("step") //
 				.<Crime, Crime>chunk(10) //
-				.reader(realEstateItemReader()) //
+				.reader(crimeItemReader()) //
 				.processor(new PassThroughItemProcessor<>()) //
 				.writer(this.crimeItemWriter) //
 				.build();
 	}
 
 	@Bean
-	public FlatFileItemReader<Crime> realEstateItemReader() {
+	public FlatFileItemReader<Crime> crimeItemReader() {
 		return new FlatFileItemReaderBuilder<Crime>() //
 				.name("crimeItemReader") //
 				.delimited()
@@ -63,7 +63,7 @@ public class BatchJobConfig {
 	}
 
 	@Bean
-	public Job job() throws Exception {
+	public Job job() {
 		return this.jobBuilderFactory.get("job") //
 				.start(step()) //
 				.build();
