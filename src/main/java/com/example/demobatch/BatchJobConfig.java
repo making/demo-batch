@@ -2,15 +2,14 @@ package com.example.demobatch;
 
 import javax.sql.DataSource;
 
-import com.example.demobatch.realestate.RealEstate;
-import com.example.demobatch.realestate.RealEstateFieldSetMapper;
-import com.example.demobatch.realestate.RealEstateItemWriter;
+import com.example.demobatch.crime.Crime;
+import com.example.demobatch.crime.CrimeFieldSetMapper;
+import com.example.demobatch.crime.CrimeItemWriter;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.converter.JobParametersConverter;
 import org.springframework.batch.core.jsr.JsrJobParametersConverter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -18,17 +17,21 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.UrlResource;
 
 @Configuration
 public class BatchJobConfig {
 	private final JobBuilderFactory jobBuilderFactory;
 	private final StepBuilderFactory stepBuilderFactory;
+	private final DemoProperties props;
+	private final CrimeItemWriter crimeItemWriter;
 
 	public BatchJobConfig(JobBuilderFactory jobBuilderFactory,
-			StepBuilderFactory stepBuilderFactory) {
+			StepBuilderFactory stepBuilderFactory, DemoProperties props,
+			CrimeItemWriter crimeItemWriter) {
 		this.jobBuilderFactory = jobBuilderFactory;
 		this.stepBuilderFactory = stepBuilderFactory;
+		this.props = props;
+		this.crimeItemWriter = crimeItemWriter;
 	}
 
 	@Bean
@@ -39,32 +42,24 @@ public class BatchJobConfig {
 	@Bean
 	public Step step() throws Exception {
 		return stepBuilderFactory.get("step") //
-				.<RealEstate, RealEstate>chunk(3) //
+				.<Crime, Crime>chunk(10) //
 				.reader(realEstateItemReader()) //
 				.processor(new PassThroughItemProcessor<>()) //
-				.writer(realEstateItemWriter()) //
+				.writer(this.crimeItemWriter) //
 				.build();
 	}
 
 	@Bean
-	@StepScope
-	public FlatFileItemReader<RealEstate> realEstateItemReader() throws Exception {
-		return new FlatFileItemReaderBuilder<RealEstate>() //
-				.name("realEstateItemReader") //
+	public FlatFileItemReader<Crime> realEstateItemReader() {
+		return new FlatFileItemReaderBuilder<Crime>() //
+				.name("crimeItemReader") //
 				.delimited()
-				.names(new String[] { "street", "city", "zip", "state", "beds", "baths",
-						"sq__ft", "type", "sale_date", "price", "latitude", "longitude" }) //
+				.names(new String[] { "cdatetime", "address", "district", "beat", "grid",
+						"crimedescr", "ucr_ncic_code", "latitude", "longitude" }) //
 				.linesToSkip(1) //
-				.fieldSetMapper(new RealEstateFieldSetMapper()) //
-				.resource(new UrlResource(
-						"http://samplecsvs.s3.amazonaws.com/Sacramentorealestatetransactions.csv")) //
+				.fieldSetMapper(new CrimeFieldSetMapper()) //
+				.resource(this.props.getCsvSource()) //
 				.build();
-	}
-
-	@Bean
-	@StepScope
-	public RealEstateItemWriter realEstateItemWriter() {
-		return new RealEstateItemWriter();
 	}
 
 	@Bean
