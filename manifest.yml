@@ -1,0 +1,6 @@
+applications:
+- name: demo-batch
+  memory: 1g
+  path: target/demo-batch-0.0.1-SNAPSHOT.jar
+  services:
+  - job-db # cf create-service p-mysql 100mb job-db
